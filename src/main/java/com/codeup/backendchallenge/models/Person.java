@@ -1,5 +1,6 @@
 package com.codeup.backendchallenge.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,10 @@ import java.sql.Date;
 
 
 @Entity
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Table(name="persons")
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Person {
 
     @Id
@@ -25,11 +25,12 @@ public class Person {
     private String name;
 
     @Column
-    private short age;
+    private int age;
 
     @Column(name = "date_joined")
     private Date dateJoined;
 
     @Column(name = "date_updated")
     private Date dateUpdated;
+
 }
