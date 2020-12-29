@@ -65,6 +65,7 @@ public class PersonEndpointTests {
         Person addedPerson = personDao.findByName("Another One");
 
         assertNotNull(addedPerson);
+        assertNotEquals(addedPerson.getId(), person.getId());
         assertEquals(addedPerson.getName(), person.getName());
         assertEquals(addedPerson.getAge(), person.getAge());
         assertEquals(addedPerson.getDateJoined(), person.getDateJoined());
@@ -78,10 +79,11 @@ public class PersonEndpointTests {
     public void testAllPersons() throws Exception {
         List<Person> existingPersons = personDao.findAll();
 
+        assertNotNull(existingPersons);
+
         this.mvc.perform(get("/person/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(existingPersons.size())))
-                // Test the static content of the page
                 .andExpect(content().contentType("application/json"));
     }
 
@@ -90,6 +92,8 @@ public class PersonEndpointTests {
     @Test
     public void deletePerson() throws Exception {
         Person personToDelete = personDao.findByName("Test Name");
+
+        assertNotNull(personToDelete);
 
         this.mvc.perform(post("/person/" + personToDelete.getId() + "/delete"))
                 .andExpect(status().isAccepted());
@@ -102,6 +106,8 @@ public class PersonEndpointTests {
     public void getPerson() throws Exception {
         Person personToFind = personDao.findByName("Test Name");
 
+        assertNotNull(personToFind);
+
         this.mvc.perform(get("/person/" + personToFind.getId() + "/get"))
                 .andExpect(jsonPath("$['id']", is((int) personToFind.getId())))
                 .andExpect(jsonPath("$['name']", is(personToFind.getName())))
@@ -110,6 +116,34 @@ public class PersonEndpointTests {
                 .andExpect(jsonPath("$['dateUpdated']", is(personToFind.getDateUpdated().toString())));
     }
 
+    @Test
+    public void updatePerson() throws Exception {
+        Person personToUpdate = personDao.findByName("Test Name");
+        ObjectMapper obj = new ObjectMapper();
 
+        assertNotNull(personToUpdate);
+
+        personToUpdate.setName("Changed Name");
+        personToUpdate.setAge(21);
+        personToUpdate.setDateUpdated(Date.valueOf("2006-06-06"));
+        personToUpdate.setDateJoined(Date.valueOf("2013-03-03"));
+
+        String jsonStr = obj.writeValueAsString(personToUpdate);
+
+        this.mvc.perform(post("/person/" + personToUpdate.getId() + "/update")
+                .contentType("application/json")
+                .content(jsonStr))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$['id']", is((int) personToUpdate.getId())))
+                .andExpect(jsonPath("$['name']", is(personToUpdate.getName())))
+                .andExpect(jsonPath("$['age']", is(personToUpdate.getAge())))
+                .andExpect(jsonPath("$['dateJoined']", is(personToUpdate.getDateJoined().toString())))
+                .andExpect(jsonPath("$['dateUpdated']", is(personToUpdate.getDateUpdated().toString())));
+
+
+        Person afterUpdate = personDao.getOne(personToUpdate.getId());
+        assertNotNull(afterUpdate);
+        personDao.delete(afterUpdate);
+    }
 
 }
