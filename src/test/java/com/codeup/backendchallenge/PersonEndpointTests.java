@@ -46,7 +46,6 @@ public class PersonEndpointTests {
 
     @Test
     public void contextLoads() {
-        // Sanity Test, just to make sure the MVC bean is working
         assertNotNull(mvc);
     }
 
@@ -64,6 +63,7 @@ public class PersonEndpointTests {
 
         Person addedPerson = personDao.findByName("Another One");
 
+        //TODO: move checks into mvc.perform call
         assertNotNull(addedPerson);
         assertNotEquals(addedPerson.getId(), person.getId());
         assertEquals(addedPerson.getName(), person.getName());
@@ -86,8 +86,6 @@ public class PersonEndpointTests {
                 .andExpect(jsonPath("$", hasSize(existingPersons.size())))
                 .andExpect(content().contentType("application/json"));
     }
-
-    //TODO: get, update
 
     @Test
     public void deletePerson() throws Exception {

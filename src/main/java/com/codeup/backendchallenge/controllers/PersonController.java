@@ -41,7 +41,6 @@ public class PersonController {
         personDao.deleteById(id);
     }
 
-
     //TODO: date conversion can result in being off by one day
     @PostMapping(value = "/{id}/update", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
