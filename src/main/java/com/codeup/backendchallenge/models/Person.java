@@ -33,4 +33,10 @@ public class Person {
     @Column(name = "date_updated")
     private Date dateUpdated;
 
+    public Person(String name, int age, Date dateJoined, Date dateUpdated) {
+        this.name = name;
+        this.age = age;
+        this.dateJoined = dateJoined;
+        this.dateUpdated = dateUpdated;
+    }
 }
