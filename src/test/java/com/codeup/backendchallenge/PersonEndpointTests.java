@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -54,7 +54,6 @@ public class PersonEndpointTests {
     public void testAddPerson() throws Exception {
 
         Person person = new Person("Another One", 82, Date.valueOf("2005-05-05"), Date.valueOf("2009-07-07"));
-
         ObjectMapper obj = new ObjectMapper();
         String jsonStr = obj.writeValueAsString(person);
 
@@ -62,6 +61,17 @@ public class PersonEndpointTests {
                 .contentType("application/json")
                 .content(jsonStr))
                 .andExpect(status().isCreated());
+
+        Person addedPerson = personDao.findByName("Another One");
+
+        assertNotNull(addedPerson);
+        assertEquals(addedPerson.getName(), person.getName());
+        assertEquals(addedPerson.getAge(), person.getAge());
+        assertEquals(addedPerson.getDateJoined(), person.getDateJoined());
+        assertEquals(addedPerson.getDateUpdated(), person.getDateUpdated());
+
+        personDao.delete(addedPerson);
+
     }
 
     @Test
@@ -74,4 +84,32 @@ public class PersonEndpointTests {
                 // Test the static content of the page
                 .andExpect(content().contentType("application/json"));
     }
+
+    //TODO: get, update
+
+    @Test
+    public void deletePerson() throws Exception {
+        Person personToDelete = personDao.findByName("Test Name");
+
+        this.mvc.perform(post("/person/" + personToDelete.getId() + "/delete"))
+                .andExpect(status().isAccepted());
+
+        Person afterDeletion = personDao.findByName("Test Name");
+        assertNull(afterDeletion);
+    }
+
+    @Test
+    public void getPerson() throws Exception {
+        Person personToFind = personDao.findByName("Test Name");
+
+        this.mvc.perform(get("/person/" + personToFind.getId() + "/get"))
+                .andExpect(jsonPath("$['id']", is((int) personToFind.getId())))
+                .andExpect(jsonPath("$['name']", is(personToFind.getName())))
+                .andExpect(jsonPath("$['age']", is(personToFind.getAge())))
+                .andExpect(jsonPath("$['dateJoined']", is(personToFind.getDateJoined().toString())))
+                .andExpect(jsonPath("$['dateUpdated']", is(personToFind.getDateUpdated().toString())));
+    }
+
+
+
 }
