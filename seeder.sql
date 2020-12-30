@@ -1,6 +1,8 @@
 DROP DATABASE IF EXISTS restful_db;
 CREATE DATABASE IF NOT EXISTS restful_db;
 
+# database is created with hibernate, then run the commands below
+
 USE restful_db;
 
 INSERT INTO jobs (job_title, salary)

@@ -36,10 +36,11 @@ public class Person {
     @OneToOne
     private Job job;
 
-    public Person(String name, int age, Date dateJoined, Date dateUpdated) {
+    public Person(String name, int age, Date dateJoined, Date dateUpdated, Job job) {
         this.name = name;
         this.age = age;
         this.dateJoined = dateJoined;
         this.dateUpdated = dateUpdated;
+        this.job = job;
     }
 }

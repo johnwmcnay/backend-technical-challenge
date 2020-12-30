@@ -1,6 +1,8 @@
 package com.codeup.backendchallenge;
 
+import com.codeup.backendchallenge.models.Job;
 import com.codeup.backendchallenge.models.Person;
+import com.codeup.backendchallenge.repos.JobRepository;
 import com.codeup.backendchallenge.repos.PersonRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.*;
@@ -32,14 +34,25 @@ public class PersonEndpointTests {
     @Autowired
     PersonRepository personDao;
 
+    @Autowired
+    JobRepository jobDao;
+
     @Before
     public void setup() {
 
         Person person = personDao.findByName("Test Name");
+        Job job = jobDao.findByJobTitle("Temporary Test");
+
+        if (job == null) {
+            Job newJob = new Job("Temporary Test", 45678);
+            jobDao.save(newJob);
+        }
 
         if (person == null) {
             Person newPerson = new Person(
-                    "Test Name", 45, Date.valueOf("2011-02-03"), Date.valueOf("2012-04-05"));
+                    "Test Name", 45,
+                    Date.valueOf("2011-02-03"), Date.valueOf("2012-04-05"),
+                    jobDao.findByJobTitle("Temporary Test"));
             personDao.save(newPerson);
         }
     }
@@ -47,9 +60,14 @@ public class PersonEndpointTests {
     @After
     public void postTest() {
         Person person = personDao.findByName("Test Name");
+        Job job = jobDao.findByJobTitle("Temporary Test");
 
         if (person != null) {
             personDao.delete(person);
+        }
+
+        if (job != null) {
+            jobDao.delete(job);
         }
     }
 
@@ -61,7 +79,7 @@ public class PersonEndpointTests {
     @Test
     public void testAddPerson() throws Exception {
 
-        Person person = new Person("Another One", 82, Date.valueOf("2005-05-05"), Date.valueOf("2009-07-07"));
+        Person person = new Person("Another One", 82, Date.valueOf("2005-05-05"), Date.valueOf("2009-07-07"), jobDao.findByJobTitle("Temporary Test"));
         ObjectMapper obj = new ObjectMapper();
         String jsonStr = obj.writeValueAsString(person);
 
@@ -71,6 +89,7 @@ public class PersonEndpointTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$['name']", is(person.getName())))
                 .andExpect(jsonPath("$['age']", is(person.getAge())))
+                .andExpect(jsonPath("$['job'].id", is((int) person.getJob().getId())))
                 .andExpect(jsonPath("$['dateJoined']", is(person.getDateJoined().toString())))
                 .andExpect(jsonPath("$['dateUpdated']", is(person.getDateUpdated().toString())));
 
@@ -125,6 +144,7 @@ public class PersonEndpointTests {
 
         personToUpdate.setName("Changed Name");
         personToUpdate.setAge(21);
+        personToUpdate.setJob(jobDao.findByJobTitle("Temporary Test"));
         personToUpdate.setDateUpdated(Date.valueOf("2006-06-06"));
         personToUpdate.setDateJoined(Date.valueOf("2013-03-03"));
 
@@ -137,6 +157,7 @@ public class PersonEndpointTests {
                 .andExpect(jsonPath("$['id']", is((int) personToUpdate.getId())))
                 .andExpect(jsonPath("$['name']", is(personToUpdate.getName())))
                 .andExpect(jsonPath("$['age']", is(personToUpdate.getAge())))
+                .andExpect(jsonPath("$['job'].id", is((int) personToUpdate.getJob().getId())))
                 .andExpect(jsonPath("$['dateJoined']", is(personToUpdate.getDateJoined().toString())))
                 .andExpect(jsonPath("$['dateUpdated']", is(personToUpdate.getDateUpdated().toString())));
 
