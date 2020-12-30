@@ -33,6 +33,9 @@ public class Person {
     @Column(name = "date_updated")
     private Date dateUpdated;
 
+    @OneToOne
+    private Job job;
+
     public Person(String name, int age, Date dateJoined, Date dateUpdated) {
         this.name = name;
         this.age = age;
