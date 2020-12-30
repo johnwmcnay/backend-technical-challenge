@@ -18,12 +18,14 @@ public class PersonController {
     private final PersonRepository personDao;
 
     @GetMapping("/{id}/get")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Person getPerson(@PathVariable(name = "id") long id) {
 
         return personDao.getOne(id);
     }
 
     @GetMapping("/all")
+    @ResponseStatus(HttpStatus.OK)
     public List<Person> getAll() {
         return personDao.findAll();
     }
@@ -41,7 +43,6 @@ public class PersonController {
         personDao.deleteById(id);
     }
 
-
     //TODO: date conversion can result in being off by one day
     @PostMapping(value = "/{id}/update", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -53,6 +54,7 @@ public class PersonController {
         personToUpdate.setName(person.getName() == null ? personToUpdate.getName() : person.getName());
         personToUpdate.setDateJoined(person.getDateJoined() == null ? personToUpdate.getDateJoined() : person.getDateJoined());
         personToUpdate.setDateUpdated(person.getDateUpdated() == null ? personToUpdate.getDateUpdated() : person.getDateUpdated());
+        personToUpdate.setJob(person.getJob() == null ? personToUpdate.getJob() : person.getJob());
 
         return personDao.save(personToUpdate);
     }
