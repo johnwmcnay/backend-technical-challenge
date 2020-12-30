@@ -59,20 +59,13 @@ public class PersonEndpointTests {
         this.mvc.perform(post("/person/add")
                 .contentType("application/json")
                 .content(jsonStr))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$['name']", is(person.getName())))
+                .andExpect(jsonPath("$['age']", is(person.getAge())))
+                .andExpect(jsonPath("$['dateJoined']", is(person.getDateJoined().toString())))
+                .andExpect(jsonPath("$['dateUpdated']", is(person.getDateUpdated().toString())));
 
-        Person addedPerson = personDao.findByName("Another One");
-
-        //TODO: move checks into mvc.perform call
-        assertNotNull(addedPerson);
-        assertNotEquals(addedPerson.getId(), person.getId());
-        assertEquals(addedPerson.getName(), person.getName());
-        assertEquals(addedPerson.getAge(), person.getAge());
-        assertEquals(addedPerson.getDateJoined(), person.getDateJoined());
-        assertEquals(addedPerson.getDateUpdated(), person.getDateUpdated());
-
-        personDao.delete(addedPerson);
-
+        personDao.delete(personDao.findByName(person.getName()));
     }
 
     @Test
