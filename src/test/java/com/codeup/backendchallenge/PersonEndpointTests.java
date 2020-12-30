@@ -44,6 +44,15 @@ public class PersonEndpointTests {
         }
     }
 
+    @After
+    public void postTest() {
+        Person person = personDao.findByName("Test Name");
+
+        if (person != null) {
+            personDao.delete(person);
+        }
+    }
+
     @Test
     public void contextLoads() {
         assertNotNull(mvc);

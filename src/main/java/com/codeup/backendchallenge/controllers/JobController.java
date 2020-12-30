@@ -16,14 +16,14 @@ import java.util.List;
 public class JobController {
     private final JobRepository jobDao;
     
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Job addJob(@RequestBody Job job) {
         Preconditions.checkNotNull(job);
         return jobDao.save(job);
     }
 
-    @GetMapping(value = "/{id}/get", consumes = "application/json", produces = "application/json")
+    @GetMapping(value = "/{id}/get")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Job getJob(@PathVariable(name = "id") long id) {
         return jobDao.getOne(id);
@@ -35,7 +35,7 @@ public class JobController {
         return jobDao.findAll();
     }
 
-    @PostMapping("/{id}/update")
+    @PostMapping(value = "/{id}/update", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Job updateJob(@PathVariable(name = "id") long id, @RequestBody Job job) {
         Preconditions.checkNotNull(job);

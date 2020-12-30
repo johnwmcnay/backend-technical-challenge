@@ -28,5 +28,8 @@ public class Job {
     @Column
     private int salary;
 
-
+    public Job(String jobTitle, int salary) {
+        this.jobTitle = jobTitle;
+        this.salary = salary;
+    }
 }
