@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.sql.Date;
@@ -83,7 +82,7 @@ public class PersonEndpointTests {
         ObjectMapper obj = new ObjectMapper();
         String jsonStr = obj.writeValueAsString(person);
 
-        this.mvc.perform(post("/person/add")
+        this.mvc.perform(post("/persons")
                 .contentType("application/json")
                 .content(jsonStr))
                 .andExpect(status().isCreated())
@@ -102,7 +101,7 @@ public class PersonEndpointTests {
 
         assertNotNull(existingPersons);
 
-        this.mvc.perform(get("/person/all"))
+        this.mvc.perform(get("/persons"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(existingPersons.size())))
                 .andExpect(content().contentType("application/json"));
@@ -114,8 +113,8 @@ public class PersonEndpointTests {
 
         assertNotNull(personToDelete);
 
-        this.mvc.perform(post("/person/" + personToDelete.getId() + "/delete"))
-                .andExpect(status().isAccepted());
+        this.mvc.perform(delete("/persons/" + personToDelete.getId()))
+                .andExpect(status().isNoContent());
 
         Person afterDeletion = personDao.findByName("Test Name");
         assertNull(afterDeletion);
@@ -127,7 +126,8 @@ public class PersonEndpointTests {
 
         assertNotNull(personToFind);
 
-        this.mvc.perform(get("/person/" + personToFind.getId() + "/get"))
+        this.mvc.perform(get("/persons/" + personToFind.getId()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$['id']", is((int) personToFind.getId())))
                 .andExpect(jsonPath("$['name']", is(personToFind.getName())))
                 .andExpect(jsonPath("$['age']", is(personToFind.getAge())))
@@ -150,10 +150,10 @@ public class PersonEndpointTests {
 
         String jsonStr = obj.writeValueAsString(personToUpdate);
 
-        this.mvc.perform(post("/person/" + personToUpdate.getId() + "/update")
+        this.mvc.perform(put("/persons/" + personToUpdate.getId())
                 .contentType("application/json")
                 .content(jsonStr))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$['id']", is((int) personToUpdate.getId())))
                 .andExpect(jsonPath("$['name']", is(personToUpdate.getName())))
                 .andExpect(jsonPath("$['age']", is(personToUpdate.getAge())))

@@ -12,50 +12,47 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/person")
+@RequestMapping(path = "/persons")
 public class PersonController {
 
     private final PersonRepository personDao;
 
-    @GetMapping("/{id}/get")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //get single entry
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Person getPerson(@PathVariable(name = "id") long id) {
-
         return personDao.getOne(id);
     }
 
-    @GetMapping("/all")
+    //delete single person
+    @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePerson(@PathVariable(name = "id") long id) {
+        personDao.deleteById(id);
+    }
+
+    //update single person
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Person updatePerson(@PathVariable(name = "id") long id, @RequestBody Person person) {
+        Preconditions.checkNotNull(person);
+        return personDao.save(person);
+    }
+
+    //get all persons
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Person> getAll() {
         return personDao.findAll();
     }
 
-    @PostMapping(value = "/add", consumes = "application/json", produces = "application/json")
+    //create person
+    @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Person addPerson(@RequestBody Person person) {
         Preconditions.checkNotNull(person);
         return personDao.save(person);
     }
 
-    @PostMapping(value = "{id}/delete")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deletePerson (@PathVariable(name = "id") long id) {
-        personDao.deleteById(id);
-    }
 
-    //TODO: date conversion can result in being off by one day
-    @PostMapping(value = "/{id}/update", consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Person updatePerson(@PathVariable(name = "id") long id, @RequestBody Person person) {
-        Preconditions.checkNotNull(person);
-        Person personToUpdate = personDao.getOne(id);
-
-        personToUpdate.setAge(person.getAge() == 0 ? personToUpdate.getAge() : person.getAge());
-        personToUpdate.setName(person.getName() == null ? personToUpdate.getName() : person.getName());
-        personToUpdate.setDateJoined(person.getDateJoined() == null ? personToUpdate.getDateJoined() : person.getDateJoined());
-        personToUpdate.setDateUpdated(person.getDateUpdated() == null ? personToUpdate.getDateUpdated() : person.getDateUpdated());
-        personToUpdate.setJob(person.getJob() == null ? personToUpdate.getJob() : person.getJob());
-
-        return personDao.save(personToUpdate);
-    }
 }
