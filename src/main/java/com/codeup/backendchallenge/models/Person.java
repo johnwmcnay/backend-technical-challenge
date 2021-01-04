@@ -1,18 +1,15 @@
 package com.codeup.backendchallenge.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Date;
 
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Data
+@RequiredArgsConstructor
 @Table(name="persons")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Person {

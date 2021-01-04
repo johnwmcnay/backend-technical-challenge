@@ -12,31 +12,35 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/job")
+@RequestMapping(path = "/jobs")
 public class JobController {
     private final JobRepository jobDao;
-    
-    @PostMapping(value = "/add", consumes = "application/json", produces = "application/json")
+
+    //create job
+    @PostMapping( consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Job addJob(@RequestBody Job job) {
         Preconditions.checkNotNull(job);
         return jobDao.save(job);
     }
 
-    @GetMapping(value = "/{id}/get")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //return single job
+    @GetMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Job getJob(@PathVariable(name = "id") long id) {
         return jobDao.getOne(id);
     }
 
-    @GetMapping("/all")
+    //return all jobs
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Job> getAllJobs() {
         return jobDao.findAll();
     }
 
-    @PostMapping(value = "/{id}/update", consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //update job
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Job updateJob(@PathVariable(name = "id") long id, @RequestBody Job job) {
         Preconditions.checkNotNull(job);
         Job jobToUpdate = jobDao.getOne(id);
@@ -47,8 +51,9 @@ public class JobController {
         return jobDao.save(jobToUpdate);
     }
 
-    @PostMapping("/{id}/delete")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //delete job
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteJob(@PathVariable(name = "id") long id) {
         jobDao.deleteById(id);
     }

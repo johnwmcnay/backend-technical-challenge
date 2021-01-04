@@ -1,10 +1,12 @@
 package com.codeup.backendchallenge.controllers;
 
+import com.codeup.backendchallenge.models.Job;
 import com.codeup.backendchallenge.models.Person;
 import com.codeup.backendchallenge.repos.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.util.Preconditions;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
@@ -34,9 +36,9 @@ public class PersonController {
     //update single person
     @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Person updatePerson(@PathVariable(name = "id") long id, @RequestBody Person person) {
+    public void updatePerson(@PathVariable(name = "id") long id, @RequestBody Person person) {
         Preconditions.checkNotNull(person);
-        return personDao.save(person);
+        personDao.save(person);
     }
 
     //get all persons
@@ -54,5 +56,14 @@ public class PersonController {
         return personDao.save(person);
     }
 
+    //update only the job of a person
+    @PatchMapping(value = "/{id}/jobs", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePersonJob(@PathVariable(name = "id") long id, @RequestBody Job job) {
+        Person person = personDao.getOne(id);
+
+        person.setJob(job);
+        personDao.save(person);
+    }
 
 }

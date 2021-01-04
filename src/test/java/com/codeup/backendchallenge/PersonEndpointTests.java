@@ -48,10 +48,9 @@ public class PersonEndpointTests {
         }
 
         if (person == null) {
-            Person newPerson = new Person(
-                    "Test Name", 45,
-                    Date.valueOf("2011-02-03"), Date.valueOf("2012-04-05"),
-                    jobDao.findByJobTitle("Temporary Test"));
+            Person newPerson = new Person("Test Name", 45, Date.valueOf("2011-02-03"),
+                    Date.valueOf("2012-04-05"), jobDao.findByJobTitle("Temporary Test"));
+
             personDao.save(newPerson);
         }
     }
@@ -78,7 +77,8 @@ public class PersonEndpointTests {
     @Test
     public void testAddPerson() throws Exception {
 
-        Person person = new Person("Another One", 82, Date.valueOf("2005-05-05"), Date.valueOf("2009-07-07"), jobDao.findByJobTitle("Temporary Test"));
+        Person person = new Person("Another One", 82, Date.valueOf("2005-05-05"),
+                Date.valueOf("2009-07-07"), jobDao.findByJobTitle("Temporary Test"));
         ObjectMapper obj = new ObjectMapper();
         String jsonStr = obj.writeValueAsString(person);
 
@@ -153,18 +153,35 @@ public class PersonEndpointTests {
         this.mvc.perform(put("/persons/" + personToUpdate.getId())
                 .contentType("application/json")
                 .content(jsonStr))
-                .andExpect(status().isNoContent())
-                .andExpect(jsonPath("$['id']", is((int) personToUpdate.getId())))
-                .andExpect(jsonPath("$['name']", is(personToUpdate.getName())))
-                .andExpect(jsonPath("$['age']", is(personToUpdate.getAge())))
-                .andExpect(jsonPath("$['job'].id", is((int) personToUpdate.getJob().getId())))
-                .andExpect(jsonPath("$['dateJoined']", is(personToUpdate.getDateJoined().toString())))
-                .andExpect(jsonPath("$['dateUpdated']", is(personToUpdate.getDateUpdated().toString())));
-
+                .andExpect(status().isNoContent());
 
         Person afterUpdate = personDao.getOne(personToUpdate.getId());
         assertNotNull(afterUpdate);
+        assertEquals(personToUpdate.getId(), afterUpdate.getId());
         personDao.delete(afterUpdate);
+    }
+
+    @Test
+    public void updatePersonJob() throws Exception {
+        ObjectMapper obj = new ObjectMapper();
+        Person personToPatch = personDao.findByName("Test Name");
+        Job job = new Job();
+        job.setJobTitle("A Better Job");
+        job.setSalary(345123);
+        job = jobDao.save(job);
+        String jsonStr = obj.writeValueAsString(job);
+
+        this.mvc.perform(patch("/persons/" + personToPatch.getId() + "/jobs" )
+                .contentType("application/json")
+                .content(jsonStr))
+                .andExpect(status().isNoContent());
+
+        Person personAfterPatch = personDao.findByName("Test Name");
+        assertNotNull(personAfterPatch);
+        assertEquals(job.getId(), personAfterPatch.getJob().getId());
+
+        personDao.delete(personAfterPatch);
+        jobDao.delete(job);
     }
 
 }

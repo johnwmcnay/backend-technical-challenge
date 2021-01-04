@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.sql.Date;
@@ -67,7 +66,7 @@ public class JobEndpointTests {
         ObjectMapper obj = new ObjectMapper();
         String jsonStr = obj.writeValueAsString(job);
 
-        this.mvc.perform(post("/job/add")
+        this.mvc.perform(post("/jobs")
                 .contentType("application/json")
                 .content(jsonStr))
                 .andExpect(status().isCreated())
@@ -83,7 +82,7 @@ public class JobEndpointTests {
 
         assertNotNull(existingJobs);
 
-        this.mvc.perform(get("/job/all"))
+        this.mvc.perform(get("/jobs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(existingJobs.size())))
                 .andExpect(content().contentType("application/json"));
@@ -95,8 +94,8 @@ public class JobEndpointTests {
 
         assertNotNull(jobToDelete);
 
-        this.mvc.perform(post("/job/" + jobToDelete.getId() + "/delete"))
-                .andExpect(status().isAccepted());
+        this.mvc.perform(delete("/jobs/" + jobToDelete.getId()))
+                .andExpect(status().isNoContent());
 
         Job afterDeletion = jobDao.findByJobTitle("Test Job");
         assertNull(afterDeletion);
@@ -108,7 +107,7 @@ public class JobEndpointTests {
 
         assertNotNull(jobToFind);
 
-        this.mvc.perform(get("/job/" + jobToFind.getId() + "/get"))
+        this.mvc.perform(get("/jobs/" + jobToFind.getId()))
                 .andExpect(jsonPath("$['id']", is((int) jobToFind.getId())))
                 .andExpect(jsonPath("$['jobTitle']", is(jobToFind.getJobTitle())))
                 .andExpect(jsonPath("$['salary']", is(jobToFind.getSalary())));
@@ -126,10 +125,10 @@ public class JobEndpointTests {
 
         String jsonStr = obj.writeValueAsString(jobToUpdate);
 
-        this.mvc.perform(post("/job/" + jobToUpdate.getId() + "/update")
+        this.mvc.perform(put("/jobs/" + jobToUpdate.getId())
                 .contentType("application/json")
                 .content(jsonStr))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$['id']", is((int) jobToUpdate.getId())))
                 .andExpect(jsonPath("$['jobTitle']", is(jobToUpdate.getJobTitle())))
                 .andExpect(jsonPath("$['salary']", is(jobToUpdate.getSalary())));
@@ -138,5 +137,4 @@ public class JobEndpointTests {
         assertNotNull(afterUpdate);
         jobDao.delete(afterUpdate);
     }
-
 }
